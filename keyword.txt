@@ -1,0 +1,9 @@
+DIVIDE_NUM
+MULTIPLE
+cell_width
+cell_height
+
+puzzledImage
+solvedImage
+
+solve()
