@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Comic Action Downloader
 // @namespace    -
-// @version      0.2.0
+// @version      0.2.1
 // @description  可能需要開啓允許下載多個檔案的權限
 // @author       LianSheng
 
@@ -44,7 +44,7 @@
         document.querySelector("div#us_download").addEventListener("click", downloadThisEpisode);
     }
 
-
+    // 下載此回
     async function downloadThisEpisode() {
         let pageData = await fetch(
             `${location.pathname}.json`
@@ -66,6 +66,8 @@
                 let episodeName = pageData.title;
                 let count = 1;
                 let isStart = false;
+                let w = 0;
+                let h = 0;
 
                 pageData.pageStructure.pages.forEach(page => {
                     if (page.contentStart != undefined) {
@@ -77,18 +79,26 @@
                         rearrangeImage(page.src, `${seriesName}_${episodeName}_${count}`, page.width, page.height);
                         count++;
 
+                        if (w == 0 && h == 0) {
+                            w = page.width;
+                            h = page.height;
+                        }
                         if (page.contentEnd != undefined) {
                             // 結束
                             isStart = false;
                         }
                     }
                 });
+
+                // 下載封面圖
+                downloadThumbnail(pageData.series.thumbnailUri, `${seriesName}_${episodeName}_0`);
             } else {
                 alert("本章非公開，無法下載");
             }
         }
     }
 
+    // 解析圖片
     function rearrangeImage(imgUrl, filename, imageWidth, imageHeight) {
         let canvasResult = document.createElement('canvas');
         let ctxResult = canvasResult.getContext("2d");
@@ -128,10 +138,29 @@
         img.src = imgUrl;
     }
 
+    // 下載圖片（內頁）
     function downloadFromCanvas(canvas, filename) {
         let link = document.createElement('a');
         link.download = `${filename}.png`;
         link.href = canvas.toDataURL()
         link.click();
+    }
+
+    // 下載圖片（封面圖）
+    function downloadThumbnail(imgUrl, filename){
+        let img = new Image();
+        img.setAttribute('crossorigin', 'anonymous');
+
+        let canvasResult = document.createElement('canvas');
+        let ctxResult = canvasResult.getContext("2d");
+
+        img.onload = function () {
+            canvasResult.width = img.width;
+            canvasResult.height = img.height;
+            ctxResult.drawImage(img, 0, 0);
+            downloadFromCanvas(canvasResult, filename);
+        }
+
+        img.src = imgUrl;
     }
 })();
