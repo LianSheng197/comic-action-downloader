@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Comic Action Downloader
 // @namespace    -
-// @version      0.2.1
+// @version      0.2.2
 // @description  可能需要開啓允許下載多個檔案的權限
 // @author       LianSheng
 
@@ -141,8 +141,8 @@
     // 下載圖片（內頁）
     function downloadFromCanvas(canvas, filename) {
         let link = document.createElement('a');
-        link.download = `${filename}.png`;
-        link.href = canvas.toDataURL()
+        link.download = `${filename}.jpg`;
+        link.href = canvas.toDataURL("image/jpeg", 0.7);
         link.click();
     }
 
